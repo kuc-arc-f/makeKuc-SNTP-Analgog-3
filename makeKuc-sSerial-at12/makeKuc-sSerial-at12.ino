@@ -1,6 +1,6 @@
 /* SoftwareSerial +OLED + Analog Sensor(LM60BIZ )
  , NTP receive sample. (Atmega328P )
- BETA ver: 0.9.2
+ BETA ver: 0.9.3
 */
 #include <SoftwareSerial.h>
 #include <SPI.h>
@@ -71,15 +71,17 @@ long convert_Map(long x, long in_min, long in_max, long out_min, long out_max) {
 int getTempNum(){
   int iRet=0;
   float fSen  = 0;
-  unsigned long reading  = 0;   
-  for (int i=0; i<10; i++) {
+  unsigned long reading  = 0;
+  int iDiv =3;  
+  //for (int i=0; i<10; i++) { 
+  for (int i=0; i< iDiv; i++) {
     int  iTmp = analogRead(mVoutPin);
 //Serial.print("get.iTmp=");
 //Serial.println(iTmp);
     reading  += iTmp; 
-    //delay(100);
+    delay(100);
   }
-  int SValue= reading / 10;
+  int SValue= reading / iDiv;
   int voltage=convert_Map(SValue, 0, 1000, 0,3300);  // V
 //Serial.print("SValue=");
 //Serial.print(SValue);
@@ -172,10 +174,12 @@ void loop() {
     proc_uart();
     if (millis() > mTimerTmp) {
        mTimerTmp = millis()+ 5000;
-       mTemp= getTempNum();      
+       mTemp= getTempNum();
+       //mTemp= 10;
+Serial.println("mTemp="  +String(mTemp ));      
     }
     if (millis() > mTimerTime) {
-       mTimerTmp = millis()+ 1000;
+       mTimerTime = millis()+ 1000;
        mTimeStr= digitalClockDisplay();
        display_OLED(mTimeStr ,String(mTemp));
     }
